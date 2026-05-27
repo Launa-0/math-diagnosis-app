@@ -169,6 +169,23 @@ def render_grade_badge(grade_info):
             f'{grade_info["grade"]} · {grade_info["label"]}</span>')
 
 
+SMALL_SAMPLE_THRESHOLD = 2  # 풀이 N회 이하면 표본 적음 경고
+
+
+def render_small_sample_note(solve_count, inline=False):
+    """풀이가 적을 때 안내 문구. inline=True면 한 줄, False면 박스."""
+    if solve_count > SMALL_SAMPLE_THRESHOLD:
+        return ""
+    msg = (f"풀이가 {solve_count}회로 적어요. "
+           f"AI가 다른 개념까지 종합해 추정한 값이에요.")
+    if inline:
+        return (f'<span style="color:#B8860B;font-size:0.78rem;margin-left:6px;">'
+                f'📌 {msg}</span>')
+    return (f'<div style="background:#FFF8E1;border-left:3px solid #FBC02D;'
+            f'border-radius:6px;padding:6px 10px;margin:6px 0;'
+            f'font-size:0.82rem;color:#7c5e10;">📌 {msg}</div>')
+
+
 def clean_title(title):
     """HTML 엔티티(&#39; 등) 정리."""
     return html.unescape(title or "")
@@ -218,7 +235,8 @@ def render_concept_card(item, index):
         f'<div style="font-size:0.85rem;color:#5f6368;">'
         f'예측 이해도 <b>{g["percent"]}%</b> &nbsp;·&nbsp; '
         f'실제 정답률 {item["correct_text"]}'
-        f'</div>',
+        f'</div>'
+        f'{render_small_sample_note(item["solve_count"])}',
         unsafe_allow_html=True,
     )
 
@@ -363,6 +381,8 @@ with st.expander("💡 '예측 이해도'와 '실제 정답률'이 다른 이유
 
 n_show = len(out["weak_items"])
 
+n_show = len(out["weak_items"])
+
 # ── 성취도 좋은 학생: 취약 개념 없음 ──
 if out["n_weak_all"] == 0:
     st.success("🎉 훌륭해요! 기준치 이하로 약한 개념이 하나도 없습니다. 아주 잘하고 있어요.")
@@ -376,6 +396,7 @@ if out["n_weak_all"] == 0:
                 f'{render_grade_badge(sg)} &nbsp;<b>{html.escape(s["concept_name"])}</b> '
                 f'<span style="color:#5f6368;font-size:0.85rem;">'
                 f'— 이해도 {sg["percent"]}% · {s["correct_text"]}</span>'
+                f'{render_small_sample_note(s["solve_count"], inline=True)}'
                 f'</div>', unsafe_allow_html=True)
 
     # 더 다지면 좋은 개념 — 매핑+영상 있는 것만, 영상 카드 포함
@@ -399,7 +420,8 @@ if out["n_weak_all"] == 0:
                 f'<div style="font-size:0.85rem;color:#5f6368;">'
                 f'예측 이해도 <b>{gg["percent"]}%</b> &nbsp;·&nbsp; '
                 f'실제 정답률 {item["correct_text"]}'
-                f'</div>',
+                f'</div>'
+                f'{render_small_sample_note(item["solve_count"])}',
                 unsafe_allow_html=True,
             )
             st.markdown('<div style="font-weight:700;margin:10px 0 6px 0;">📺 추천 영상</div>',
@@ -449,9 +471,12 @@ if out["strong_items"]:
         for s in out["strong_items"][:8]:
             sg = s["grade"]
             st.markdown(
+                f'<div style="margin-bottom:6px;">'
                 f'{render_grade_badge(sg)} &nbsp;<b>{html.escape(s["concept_name"])}</b> '
                 f'<span style="color:#5f6368;font-size:0.85rem;">'
-                f'— 이해도 {sg["percent"]}% · {s["correct_text"]}</span>',
+                f'— 이해도 {sg["percent"]}% · {s["correct_text"]}</span>'
+                f'{render_small_sample_note(s["solve_count"], inline=True)}'
+                f'</div>',
                 unsafe_allow_html=True)
 
 st.divider()
