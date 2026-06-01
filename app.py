@@ -56,15 +56,13 @@ st.markdown("""
     }
     .meter-fill { height: 100%; border-radius: 999px; }
     .vid-card {
-        display: flex; gap: 12px; padding: 8px 4px; border-radius: 10px;
-        background: transparent; margin-bottom: 4px; align-items: flex-start;
-        text-decoration: none; border: none;
+        display: block; padding: 8px 6px; border-radius: 10px;
+        background: transparent; margin-bottom: 2px;
+        text-decoration: none;
     }
     .vid-card:hover { background: #eef3fb; }
     .vid-rank {
-        flex: 0 0 auto; background: #1a73e8; color:#fff; font-weight:700;
-        width: 26px; height: 26px; border-radius: 6px; display:flex;
-        align-items:center; justify-content:center; font-size:0.8rem; margin-top:2px;
+        color: #1a73e8; font-weight: 700; margin-right: 4px;
     }
     .vid-meta { color:#5f6368; font-size:0.82rem; margin-top:2px; }
     .vid-title { color:#202124; font-weight:600; font-size:0.95rem; line-height:1.35; }
@@ -207,16 +205,19 @@ def render_videos(videos):
             meta += f" · 👁️ {views:,}회"
         blocks.append(
             f'<a class="vid-card" href="{html.escape(url)}" target="_blank">'
-            f'<div class="vid-rank">{rank}</div>'
-            f'<div><div class="vid-title">{html.escape(title)}</div>'
-            f'<div class="vid-meta">{html.escape(meta)}</div></div></a>'
+            f'<div class="vid-title"><span class="vid-rank">{rank}.</span>{html.escape(title)}</div>'
+            f'<div class="vid-meta">{html.escape(meta)}</div></a>'
         )
     return "".join(blocks)
 
 
 def render_concept_card(item, index):
     g = item["grade"]
-    st.markdown(f'<div class="concept-card">', unsafe_allow_html=True)
+    if index > 1:
+        st.markdown(
+            '<hr style="border:none;border-top:1px solid #ececec;margin:22px 0;">',
+            unsafe_allow_html=True,
+        )
 
     # 헤더: 개념명 + 등급
     st.markdown(
@@ -274,8 +275,6 @@ def render_concept_card(item, index):
                 f"(concept_id={item['root_cause']['concept_id']}, "
                 f"이해도={item['root_cause']['mastery']:.4f})"
             )
-
-    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # =========================================================
@@ -403,9 +402,13 @@ if out["n_weak_all"] == 0:
     if out["refine_items"]:
         st.markdown("#### 🔧 그래도 더 다지면 좋은 개념")
         st.caption("이미 잘하고 있지만 한 번 더 짚어두면 좋은 강의를 추천드려요.")
-        for item in out["refine_items"]:
+        for ri, item in enumerate(out["refine_items"], start=1):
             gg = item["grade"]
-            st.markdown(f'<div class="concept-card">', unsafe_allow_html=True)
+            if ri > 1:
+                st.markdown(
+                    '<hr style="border:none;border-top:1px solid #ececec;margin:22px 0;">',
+                    unsafe_allow_html=True,
+                )
             st.markdown(
                 f'<div style="display:flex;justify-content:space-between;align-items:center;">'
                 f'<div style="font-size:1.05rem;font-weight:700;">{html.escape(item["concept_name"])}</div>'
@@ -433,7 +436,6 @@ if out["n_weak_all"] == 0:
                     f"예측 이해도 = {item['mastery']:.4f}  ·  정답률 = {item['correct_rate']:.4f}  ·  "
                     f"풀이 = {item['solve_count']}회"
                 )
-            st.markdown('</div>', unsafe_allow_html=True)
     st.stop()
 
 # ── 취약은 있으나 영상이 매핑된 게 없는 경우 ──
