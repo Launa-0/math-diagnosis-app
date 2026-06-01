@@ -56,11 +56,11 @@ st.markdown("""
     }
     .meter-fill { height: 100%; border-radius: 999px; }
     .vid-card {
-        display: flex; gap: 12px; padding: 10px 12px; border-radius: 10px;
-        background: #f8f9fb; margin-bottom: 8px; align-items: flex-start;
-        text-decoration: none; border: 1px solid #eef0f2;
+        display: flex; gap: 12px; padding: 8px 4px; border-radius: 10px;
+        background: transparent; margin-bottom: 4px; align-items: flex-start;
+        text-decoration: none; border: none;
     }
-    .vid-card:hover { background: #eef3fb; border-color: #cdd9f0; }
+    .vid-card:hover { background: #eef3fb; }
     .vid-rank {
         flex: 0 0 auto; background: #1a73e8; color:#fff; font-weight:700;
         width: 26px; height: 26px; border-radius: 6px; display:flex;
